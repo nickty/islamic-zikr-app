@@ -7,10 +7,13 @@ import {
   ScrollView,
   Alert,
   Modal,
+  StatusBar
 } from 'react-native';
+import { useZikr } from '../context/ZikrContext';
 
 const ZikrScreen = ({ route, navigation }) => {
-  const { title, duas: initialDuas } = route.params;
+  const { type, title, duas: initialDuas } = route.params;
+  const { completeZikr } = useZikr();
   const [duas, setDuas] = useState(
     initialDuas.map(dua => ({ ...dua, currentCount: 0, completed: false }))
   );
@@ -29,6 +32,9 @@ const ZikrScreen = ({ route, navigation }) => {
     updatedDuas[currentIndex] = { ...currentDua, currentCount: newCount, completed };
     setDuas(updatedDuas);
     
+    // Check if this completion made all duas completed
+    const allCompleted = updatedDuas.every(d => d.completed);
+    
     if (completed && currentIndex < duas.length - 1) {
       Alert.alert(
         '✅ Dua Completed!',
@@ -42,7 +48,10 @@ const ZikrScreen = ({ route, navigation }) => {
           }
         ]
       );
-    } else if (completed && currentIndex === duas.length - 1) {
+    } else if (allCompleted) {
+      // Save completion when ALL duas are completed
+      const completedCount = updatedDuas.filter(d => d.completed).length;
+      completeZikr(type, completedCount, duas.length);
       setShowCompleteModal(true);
     }
   };
@@ -90,6 +99,7 @@ const ZikrScreen = ({ route, navigation }) => {
 
   return (
     <>
+      <StatusBar barStyle="light-content" backgroundColor="#2c3e50" />
       <ScrollView style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
@@ -180,6 +190,9 @@ const ZikrScreen = ({ route, navigation }) => {
             <Text style={styles.modalTitle}>Masha'Allah!</Text>
             <Text style={styles.modalText}>
               You have completed all Duas for {title}
+            </Text>
+            <Text style={styles.modalSubText}>
+              Your progress has been saved! ✓
             </Text>
             <TouchableOpacity
               style={styles.modalButton}
@@ -413,6 +426,12 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 16,
     color: '#7f8c8d',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  modalSubText: {
+    fontSize: 14,
+    color: '#27ae60',
     textAlign: 'center',
     marginBottom: 20,
   },

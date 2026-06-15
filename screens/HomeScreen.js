@@ -5,7 +5,8 @@ import {
   StyleSheet, 
   FlatList, 
   TouchableOpacity, 
-  ActivityIndicator 
+  ActivityIndicator,
+  StatusBar
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useZikr } from '../context/ZikrContext';
@@ -17,6 +18,7 @@ const HomeScreen = () => {
   if (loading) {
     return (
       <View style={styles.center}>
+        <StatusBar barStyle="light-content" backgroundColor="#2c3e50" />
         <ActivityIndicator size="large" color="#3498db" />
         <Text style={styles.loadingText}>Loading Zikr...</Text>
       </View>
@@ -26,6 +28,7 @@ const HomeScreen = () => {
   if (!zikrData) {
     return (
       <View style={styles.center}>
+        <StatusBar barStyle="light-content" backgroundColor="#2c3e50" />
         <Text style={styles.errorText}>Failed to load data</Text>
       </View>
     );
@@ -39,6 +42,8 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#2c3e50" />
+      
       <View style={styles.header}>
         <Text style={styles.headerTitle}>📿 Islamic Zikr</Text>
         <Text style={styles.headerSubtitle}>Remember Allah</Text>

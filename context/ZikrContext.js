@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { loadZikrData, saveZikrData } from '../utils/storage';
+import { loadZikrData, saveZikrData, updateZikrCompletion, getStatsSummary, loadStats } from '../utils/storage';
 
 const ZikrContext = createContext();
 
@@ -14,10 +14,17 @@ export const useZikr = () => {
 export const ZikrProvider = ({ children }) => {
   const [zikrData, setZikrData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [statsSummary, setStatsSummary] = useState(null);
+  const [allStats, setAllStats] = useState(null);
 
   useEffect(() => {
-    loadData();
+    initializeData();
   }, []);
+
+  const initializeData = async () => {
+    await loadData();
+    await loadAllStats();
+  };
 
   const loadData = async () => {
     const data = await loadZikrData();
@@ -25,23 +32,33 @@ export const ZikrProvider = ({ children }) => {
     setLoading(false);
   };
 
-  const updateZikr = async (type, newData) => {
-    const updated = { ...zikrData, [type]: newData };
-    setZikrData(updated);
-    await saveZikrData(updated);
+  const loadAllStats = async () => {
+    const summary = await getStatsSummary();
+    const stats = await loadStats();
+    setStatsSummary(summary);
+    setAllStats(stats);
+    console.log('Stats loaded in context:', { summary, stats });
   };
 
-  const refreshData = async () => {
-    setLoading(true);
-    await loadData();
+  const completeZikr = async (zikrType, completedDuas, totalCount) => {
+    console.log('Completing Zikr:', zikrType, completedDuas, totalCount);
+    await updateZikrCompletion(zikrType, completedDuas, totalCount);
+    await loadAllStats(); // Refresh stats after completion
+  };
+
+  const refreshStats = async () => {
+    await loadAllStats();
   };
 
   return (
     <ZikrContext.Provider value={{ 
       zikrData, 
       loading, 
-      updateZikr, 
-      refreshData 
+      statsSummary,
+      allStats,
+      completeZikr,
+      refreshStats,
+      loadData
     }}>
       {children}
     </ZikrContext.Provider>

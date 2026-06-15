@@ -6,8 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ZikrProvider } from './context/ZikrContext';
 import HomeScreen from './screens/HomeScreen';
 import ZikrScreen from './screens/ZikrScreen';
-import AdminDashboard from './screens/AdminDashboard';
-import { StatusBar } from 'expo-status-bar';
+import StatsScreen from './screens/StatsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -42,7 +41,6 @@ export default function App() {
   return (
     <ZikrProvider>
       <NavigationContainer>
-        <StatusBar style="light" />
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarActiveTintColor: '#3498db',
@@ -51,6 +49,9 @@ export default function App() {
               backgroundColor: '#fff',
               borderTopWidth: 1,
               borderTopColor: '#ecf0f1',
+              paddingBottom: 5,
+              paddingTop: 5,
+              height: 60,
             },
             headerStyle: {
               backgroundColor: '#2c3e50',
@@ -61,28 +62,27 @@ export default function App() {
             },
             tabBarIcon: ({ focused, color, size }) => {
               let emoji;
-              if (route.name === 'Zikr') {
-                emoji = focused ? '📿' : '📿';
-              } else if (route.name === 'Admin') {
-                emoji = focused ? '⚙️' : '⚙️';
+              if (route.name === 'Home') {
+                emoji = focused ? '🏠' : '🏠';
+              } else if (route.name === 'Stats') {
+                emoji = focused ? '📊' : '📊';
               }
               return <Text style={{ fontSize: size, color }}>{emoji}</Text>;
             },
           })}
         >
           <Tab.Screen 
-            name="Zikr" 
+            name="Home" 
             component={HomeStack} 
             options={{ 
               headerShown: false,
-              title: 'Home'
             }} 
           />
           <Tab.Screen 
-            name="Admin" 
-            component={AdminDashboard} 
+            name="Stats" 
+            component={StatsScreen} 
             options={{
-              title: 'Admin'
+              title: 'My Progress'
             }}
           />
         </Tab.Navigator>
