@@ -43,7 +43,7 @@ export default function App() {
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={({ route }) => ({
-            tabBarActiveTintColor: '#3498db',
+            tabBarActiveTintColor: '#2c3e50',
             tabBarInactiveTintColor: '#7f8c8d',
             tabBarStyle: {
               backgroundColor: '#fff',

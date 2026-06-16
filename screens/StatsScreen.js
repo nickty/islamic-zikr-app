@@ -46,7 +46,6 @@ const StatsScreen = () => {
   const todayKey = getTodayKey();
   const todayStats = localStats?.[todayKey];
   
-  // Get last 7 days
   const recentDays = localStats ? Object.keys(localStats).sort().reverse().slice(0, 7) : [];
 
   const getZikrStatus = (zikrType) => {
@@ -74,7 +73,6 @@ const StatsScreen = () => {
         <Text style={styles.headerSubtitle}>Track your daily Zikr</Text>
       </View>
 
-      {/* Stats Cards */}
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
           <Text style={styles.statEmoji}>🔥</Text>
@@ -93,16 +91,15 @@ const StatsScreen = () => {
         </View>
       </View>
 
-      {/* Today's Status */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Today's Zikr Status</Text>
         <View style={styles.statusContainer}>
           <View style={[styles.statusItem, getZikrStatus('morning') === 'completed' && styles.statusCompleted]}>
             <Text style={styles.statusIcon}>🌅</Text>
-            <Text style={styles.statusText}>Morning Zikr</Text>
+            <Text style={styles.statusText}>Morning</Text>
             {getZikrStatus('morning') === 'completed' ? (
               <View style={styles.statusBadgeComplete}>
-                <Text style={styles.statusBadgeText}>✓ Completed</Text>
+                <Text style={styles.statusBadgeText}>✓ Done</Text>
               </View>
             ) : (
               <View style={styles.statusBadgePending}>
@@ -113,10 +110,10 @@ const StatsScreen = () => {
           
           <View style={[styles.statusItem, getZikrStatus('afternoon') === 'completed' && styles.statusCompleted]}>
             <Text style={styles.statusIcon}>☀️</Text>
-            <Text style={styles.statusText}>Afternoon Zikr</Text>
+            <Text style={styles.statusText}>Afternoon</Text>
             {getZikrStatus('afternoon') === 'completed' ? (
               <View style={styles.statusBadgeComplete}>
-                <Text style={styles.statusBadgeText}>✓ Completed</Text>
+                <Text style={styles.statusBadgeText}>✓ Done</Text>
               </View>
             ) : (
               <View style={styles.statusBadgePending}>
@@ -127,10 +124,10 @@ const StatsScreen = () => {
           
           <View style={[styles.statusItem, getZikrStatus('beforeSleep') === 'completed' && styles.statusCompleted]}>
             <Text style={styles.statusIcon}>🌙</Text>
-            <Text style={styles.statusText}>Before Sleep Zikr</Text>
+            <Text style={styles.statusText}>Before Sleep</Text>
             {getZikrStatus('beforeSleep') === 'completed' ? (
               <View style={styles.statusBadgeComplete}>
-                <Text style={styles.statusBadgeText}>✓ Completed</Text>
+                <Text style={styles.statusBadgeText}>✓ Done</Text>
               </View>
             ) : (
               <View style={styles.statusBadgePending}>
@@ -141,13 +138,11 @@ const StatsScreen = () => {
         </View>
       </View>
 
-      {/* Recent Activity */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Recent Activity</Text>
         {recentDays.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No activity yet. Start your Zikr journey!</Text>
-            <Text style={styles.emptySubText}>Complete a Zikr session to see your progress here.</Text>
           </View>
         ) : (
           recentDays.map((date) => {
@@ -167,7 +162,7 @@ const StatsScreen = () => {
                     {isToday ? 'Today' : formatDate(date)}
                   </Text>
                   <Text style={styles.activityCount}>
-                    {completedCount}/3 Zikr completed
+                    {completedCount}/3 completed
                   </Text>
                 </View>
                 <View style={styles.activityIcons}>
@@ -185,16 +180,6 @@ const StatsScreen = () => {
             );
           })
         )}
-      </View>
-
-      {/* Tips Section */}
-      <View style={styles.tipsSection}>
-        <Text style={styles.tipsTitle}>💡 Tips for Consistency</Text>
-        <Text style={styles.tipText}>• Morning Zikr after Fajr prayer</Text>
-        <Text style={styles.tipText}>• Afternoon Zikr after Asr prayer</Text>
-        <Text style={styles.tipText}>• Before Sleep Zikr right before bed</Text>
-        <Text style={styles.tipText}>• Complete all duas to save your progress</Text>
-        <Text style={styles.tipText}>• Pull down to refresh stats</Text>
       </View>
     </ScrollView>
   );
@@ -224,52 +209,52 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 20,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#ecf0f1',
-    marginTop: 5,
+    marginTop: 4,
   },
   statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 16,
-    marginTop: -20,
+    padding: 12,
+    marginTop: -16,
   },
   statCard: {
     backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 14,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    minWidth: 100,
+    minWidth: 90,
   },
   statEmoji: {
-    fontSize: 32,
-    marginBottom: 8,
+    fontSize: 28,
+    marginBottom: 4,
   },
   statValue: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#2c3e50',
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#7f8c8d',
-    marginTop: 4,
+    marginTop: 2,
   },
   section: {
     backgroundColor: '#fff',
-    margin: 16,
-    padding: 16,
-    borderRadius: 16,
+    margin: 12,
+    padding: 14,
+    borderRadius: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -277,20 +262,20 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#2c3e50',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   statusContainer: {
-    gap: 12,
+    gap: 10,
   },
   statusItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    padding: 10,
     backgroundColor: '#f8f9fa',
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ecf0f1',
   },
@@ -299,37 +284,37 @@ const styles = StyleSheet.create({
     borderColor: '#27ae60',
   },
   statusIcon: {
-    fontSize: 24,
-    marginRight: 12,
+    fontSize: 20,
+    marginRight: 10,
   },
   statusText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: '#2c3e50',
   },
   statusBadgeComplete: {
     backgroundColor: '#27ae60',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 16,
   },
   statusBadgePending: {
     backgroundColor: '#f39c12',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 16,
   },
   statusBadgeText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
   },
   activityItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ecf0f1',
   },
@@ -337,13 +322,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#e8f4f8',
     marginHorizontal: -8,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    borderRadius: 6,
   },
   activityLeft: {
     flex: 1,
   },
   activityDate: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#2c3e50',
   },
@@ -351,54 +336,29 @@ const styles = StyleSheet.create({
     color: '#3498db',
   },
   activityCount: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#7f8c8d',
-    marginTop: 2,
+    marginTop: 1,
   },
   activityIcons: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
   },
   completedIcon: {
-    fontSize: 20,
+    fontSize: 18,
   },
   pendingIcon: {
-    fontSize: 20,
+    fontSize: 18,
     opacity: 0.3,
   },
   emptyState: {
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
   },
   emptyText: {
     color: '#95a5a6',
-    fontSize: 14,
+    fontSize: 13,
     textAlign: 'center',
-  },
-  emptySubText: {
-    color: '#bdc3c7',
-    fontSize: 12,
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  tipsSection: {
-    backgroundColor: '#e8f4f8',
-    margin: 16,
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 30,
-  },
-  tipsTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 12,
-  },
-  tipText: {
-    fontSize: 14,
-    color: '#34495e',
-    marginBottom: 8,
-    lineHeight: 20,
   },
 });
 

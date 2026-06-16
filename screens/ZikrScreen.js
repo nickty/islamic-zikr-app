@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   ScrollView,
   Alert,
   Modal,
-  StatusBar
+  StatusBar,
 } from 'react-native';
 import { useZikr } from '../context/ZikrContext';
 
@@ -19,8 +19,15 @@ const ZikrScreen = ({ route, navigation }) => {
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const scrollViewRef = useRef(null);
 
   const currentDua = duas[currentIndex];
+
+  const scrollToTop = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  };
 
   const incrementCount = () => {
     if (currentDua.completed) return;
@@ -36,23 +43,21 @@ const ZikrScreen = ({ route, navigation }) => {
     const allCompleted = updatedDuas.every(d => d.completed);
     
     if (completed && currentIndex < duas.length - 1) {
-      Alert.alert(
-        '✅ Dua Completed!',
-        `You have completed "${currentDua.transliteration || currentDua.arabic.substring(0, 30)}"`,
-        [
-          { 
-            text: 'Next Dua', 
-            onPress: () => {
-              setCurrentIndex(currentIndex + 1);
-            } 
-          }
-        ]
-      );
+      // Auto go to next dua after a short delay and scroll to top
+      setTimeout(() => {
+        setCurrentIndex(currentIndex + 1);
+        // Scroll to top after state update
+        setTimeout(() => {
+          scrollToTop();
+        }, 100);
+      }, 800);
     } else if (allCompleted) {
       // Save completion when ALL duas are completed
       const completedCount = updatedDuas.filter(d => d.completed).length;
       completeZikr(type, completedCount, duas.length);
-      setShowCompleteModal(true);
+      setTimeout(() => {
+        setShowCompleteModal(true);
+      }, 500);
     }
   };
 
@@ -69,6 +74,7 @@ const ZikrScreen = ({ route, navigation }) => {
             const updatedDuas = [...duas];
             updatedDuas[currentIndex] = { ...currentDua, currentCount: 0, completed: false };
             setDuas(updatedDuas);
+            scrollToTop();
           }
         }
       ]
@@ -88,6 +94,9 @@ const ZikrScreen = ({ route, navigation }) => {
             const resetDuas = duas.map(dua => ({ ...dua, currentCount: 0, completed: false }));
             setDuas(resetDuas);
             setCurrentIndex(0);
+            setTimeout(() => {
+              scrollToTop();
+            }, 100);
           }
         }
       ]
@@ -100,7 +109,12 @@ const ZikrScreen = ({ route, navigation }) => {
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="#2c3e50" />
-      <ScrollView style={styles.container}>
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.container} 
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={true}
+      >
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
           <View style={styles.progressContainer}>
@@ -137,16 +151,23 @@ const ZikrScreen = ({ route, navigation }) => {
             <View style={[styles.progressFill, { width: `${progress}%` }]} />
           </View>
 
-          <TouchableOpacity style={styles.counterButton} onPress={incrementCount}>
-            <Text style={styles.counterButtonText}>+1</Text>
+          <TouchableOpacity 
+            style={[styles.counterButton, currentDua.completed && styles.counterButtonCompleted]} 
+            onPress={incrementCount}
+            disabled={currentDua.completed}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.counterButtonText}>
+              {currentDua.completed ? '✓ Completed' : '+1'}
+            </Text>
           </TouchableOpacity>
           
           <View style={styles.actionButtons}>
             <TouchableOpacity style={styles.resetButton} onPress={resetCurrentDua}>
-              <Text style={styles.resetButtonText}>Reset This</Text>
+              <Text style={styles.resetButtonText}>↺ Reset</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.resetAllButton} onPress={resetAllDuas}>
-              <Text style={styles.resetButtonText}>Reset All</Text>
+              <Text style={styles.resetButtonText}>↻ Reset All</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -166,7 +187,7 @@ const ZikrScreen = ({ route, navigation }) => {
                   ]}
                   numberOfLines={1}
                 >
-                  {dua.transliteration || dua.arabic.substring(0, 25)}
+                  {dua.transliteration || dua.arabic.substring(0, 20)}
                 </Text>
               </View>
               {dua.completed && <Text style={styles.checkmark}>✓</Text>}
@@ -215,29 +236,32 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
+  contentContainer: {
+    paddingBottom: 30,
+  },
   header: {
     backgroundColor: '#2c3e50',
-    padding: 20,
+    padding: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
   },
   progressContainer: {
-    marginTop: 15,
+    marginTop: 12,
   },
   progressText: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#ecf0f1',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   progressBarWrapper: {
-    height: 8,
+    height: 6,
     backgroundColor: '#ecf0f1',
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressBar: {
@@ -246,8 +270,8 @@ const styles = StyleSheet.create({
   },
   duaCard: {
     backgroundColor: '#fff',
-    margin: 16,
-    padding: 24,
+    margin: 12,
+    padding: 20,
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -256,108 +280,110 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   arabicText: {
-    fontSize: 34,
+    fontSize: 28,
     textAlign: 'center',
     fontFamily: 'System',
-    marginBottom: 16,
+    marginBottom: 12,
     color: '#2c3e50',
   },
   transliteration: {
-    fontSize: 18,
+    fontSize: 15,
     textAlign: 'center',
     color: '#7f8c8d',
-    marginBottom: 8,
+    marginBottom: 6,
     fontStyle: 'italic',
   },
   translation: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
     color: '#34495e',
-    marginBottom: 24,
-    lineHeight: 24,
+    marginBottom: 20,
+    lineHeight: 20,
   },
   repetitionInfo: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   infoBox: {
     alignItems: 'center',
   },
   infoLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#95a5a6',
-    marginBottom: 4,
+    marginBottom: 3,
   },
   infoValue: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: '#2c3e50',
   },
   progressFill: {
     height: '100%',
     backgroundColor: '#27ae60',
-    borderRadius: 4,
+    borderRadius: 3,
   },
   counterButton: {
     backgroundColor: '#3498db',
-    padding: 20,
-    borderRadius: 60,
+    padding: 16,
+    borderRadius: 50,
     alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 12,
+    marginTop: 20,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
   },
+  counterButtonCompleted: {
+    backgroundColor: '#27ae60',
+  },
   counterButtonText: {
     color: '#fff',
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 10,
   },
   resetButton: {
     flex: 1,
     backgroundColor: '#f39c12',
-    padding: 12,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 10,
     alignItems: 'center',
   },
   resetAllButton: {
     flex: 1,
     backgroundColor: '#e74c3c',
-    padding: 12,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 10,
     alignItems: 'center',
   },
   resetButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
   },
   completionList: {
     backgroundColor: '#fff',
-    margin: 16,
-    padding: 16,
+    margin: 12,
+    padding: 14,
     borderRadius: 16,
-    marginBottom: 30,
   },
   completionTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: 10,
     color: '#2c3e50',
   },
   completionItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#ecf0f1',
   },
@@ -367,12 +393,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   completionNumber: {
-    width: 30,
-    fontSize: 14,
+    width: 25,
+    fontSize: 12,
     color: '#7f8c8d',
   },
   completionText: {
-    fontSize: 14,
+    fontSize: 12,
     flex: 1,
   },
   activeItem: {
@@ -388,16 +414,16 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     color: '#27ae60',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   currentBadge: {
     backgroundColor: '#3498db',
     color: '#fff',
-    fontSize: 10,
-    paddingHorizontal: 8,
+    fontSize: 9,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: 'hidden',
   },
   modalOverlay: {
@@ -414,26 +440,26 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   modalEmoji: {
-    fontSize: 60,
-    marginBottom: 20,
+    fontSize: 50,
+    marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#2c3e50',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   modalText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#7f8c8d',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   modalSubText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#27ae60',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   modalButton: {
     backgroundColor: '#27ae60',
@@ -443,7 +469,7 @@ const styles = StyleSheet.create({
   },
   modalButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
 });
